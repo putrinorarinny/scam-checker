@@ -1,0 +1,355 @@
+<!doctype html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Scam Checker</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>">
+  <style>
+    [hidden] { display: none !important; }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #EAF6F2;
+      color: #1e293b;
+      font-size: 18px;
+      margin: 0;
+      padding: 24px 16px;
+    }
+    .container { max-width: 680px; margin: 0 auto; }
+    .top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
+    .jenama { display: flex; align-items: center; gap: 10px; }
+    .jenama svg { width: 36px; height: 36px; color: #0f766e; flex-shrink: 0; }
+    .slogan { margin: 4px 0 0; color: #475569; font-size: 16px; }
+    .kanan { display: flex; gap: 8px; align-items: center; }
+    h1 { margin: 0; font-size: 30px; color: #0f766e; }
+    h2 { margin: 0 0 14px; font-size: 22px; }
+    .intro { color: #475569; margin: 0 0 20px; }
+    .card {
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 22px 24px;
+      margin-bottom: 18px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    }
+    .center { text-align: center; }
+    label { display: block; font-size: 17px; color: #334155; margin-bottom: 6px; }
+    input {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 12px 14px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      font-size: 18px;
+      margin-bottom: 16px;
+    }
+    button, .butang-link {
+      display: inline-block;
+      background: #0f766e;
+      color: #ffffff;
+      border: none;
+      padding: 12px 22px;
+      border-radius: 8px;
+      font-size: 18px;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    button:hover, .butang-link:hover { opacity: 0.9; }
+    button.lang { background: #e2e8f0; color: #1e293b; font-size: 16px; }
+    .butang-link { padding: 16px 28px; font-size: 20px; font-weight: 600; }
+    .pautan-admin {
+      color: #475569;
+      font-size: 16px;
+      text-decoration: none;
+      padding: 8px 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      background: #ffffff;
+    }
+    .langkah-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      text-align: center;
+    }
+    .langkah-item { color: #334155; font-size: 16px; }
+    .ikon-bulat {
+      width: 52px;
+      height: 52px;
+      margin: 0 auto 8px;
+      border-radius: 50%;
+      background: #ccfbf1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .ikon-bulat svg { width: 24px; height: 24px; color: #0f766e; }
+    .amaran-semakan {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      background: #fef3c7;
+      color: #92400e;
+      border-radius: 10px;
+      padding: 12px 14px;
+      margin-top: 12px;
+      font-size: 16px;
+      font-weight: 600;
+    }
+    .amaran-semakan svg { flex-shrink: 0; margin-top: 3px; }
+    .ringkasan { color: #334155; font-size: 17px; margin: 12px 0 6px; font-weight: 600; }
+    .report {
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 16px 18px;
+      margin-top: 12px;
+    }
+    .report-title { font-weight: 600; font-size: 19px; }
+    .meta { color: #64748b; font-size: 16px; margin: 4px 0 8px; }
+    .report p { margin: 0; font-size: 18px; line-height: 1.5; }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: 600;
+      margin-left: 8px;
+    }
+    .badge.scam { background: #fee2e2; color: #991b1b; }
+    .empty { color: #64748b; font-size: 18px; margin-top: 12px; }
+    .disclaimer { color: #64748b; font-size: 14px; line-height: 1.6; margin: 0; }
+    @media (max-width: 480px) {
+      .top { flex-direction: column; gap: 12px; }
+      .langkah-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- ===== HEADER: BRAND, ADMIN LINK, LANGUAGE TOGGLE ===== -->
+    <div class="top">
+      <div>
+        <div class="jenama">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            <path d="M9 12l2 2 4-4"/>
+          </svg>
+          <h1 data-key="tajuk"></h1>
+        </div>
+        <p class="slogan" data-key="slogan"></p>
+      </div>
+      <div class="kanan">
+        <a class="pautan-admin" href="/admin">Admin</a>
+        <button class="lang" id="tukar" data-key="tukar" onclick="tukarBahasa()"></button>
+      </div>
+    </div>
+    <p class="intro" data-key="intro"></p>
+
+    <!-- ===== SEARCH A PHONE NUMBER ===== -->
+    <div class="card">
+      <h2 data-key="cari"></h2>
+      <label data-key="cariTelefon" for="cari_phone"></label>
+      <input type="text" id="cari_phone">
+      <button onclick="cariLaporan()" data-key="cariBtn"></button>
+      <div id="hasil"></div>
+    </div>
+
+    <!-- ===== HOW IT WORKS ===== -->
+    <div class="card">
+      <h2 data-key="caraTitle"></h2>
+      <div class="langkah-grid">
+        <div class="langkah-item">
+          <div class="ikon-bulat">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="7"/>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+          </div>
+          <div data-key="langkah1"></div>
+        </div>
+        <div class="langkah-item">
+          <div class="ikon-bulat">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+          </div>
+          <div data-key="langkah2"></div>
+        </div>
+        <div class="langkah-item">
+          <div class="ikon-bulat">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/>
+              <line x1="4" y1="22" x2="4" y2="15"/>
+            </svg>
+          </div>
+          <div data-key="langkah3"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== CALL TO ACTION: CREATE REPORT ===== -->
+    <div class="card center">
+      <p data-key="ajakan"></p>
+      <a class="butang-link" href="/laporan" data-key="butangLaporan"></a>
+    </div>
+
+    <!-- ===== DISCLAIMER ===== -->
+    <p class="disclaimer center" data-key="disclaimer"></p>
+  </div>
+
+  <script>
+    // ===== BILINGUAL TEXT (Malay / English) =====
+    const teks = {
+      ms: {
+        tajuk: "Scam Checker",
+        slogan: "Semak dahulu. Kekal selamat.",
+        intro: "Cari nombor telefon sebelum anda buat bayaran atau kongsi maklumat peribadi.",
+        cari: "Cari nombor telefon",
+        cariTelefon: "Nombor telefon",
+        cariBtn: "Cari",
+        tiadaCari: "Tiada laporan scam disahkan untuk nombor ini. Ini tidak bermakna nombor ini selamat.",
+        ringkasan: function (n) { return n + " laporan scam disahkan dijumpai"; },
+        semakan: function (n) { return n + " laporan sedang dalam semakan. Berhati-hati sehingga disahkan."; },
+        badgeScam: "Scam disahkan",
+        caraTitle: "Cara ia berfungsi",
+        langkah1: "Cari",
+        langkah2: "Semak",
+        langkah3: "Laporkan",
+        ajakan: "Ada nombor yang mencurigakan? Bantu orang lain dengan buat laporan.",
+        butangLaporan: "Buat laporan baharu",
+        disclaimer: "Laporan dikemukakan oleh komuniti dan mungkin tidak disahkan secara bebas. Sentiasa sahkan permintaan bayaran melalui saluran rasmi.",
+        tukar: "English"
+      },
+      en: {
+        tajuk: "Scam Checker",
+        slogan: "Check first. Stay protected.",
+        intro: "Search a phone number before you make any payment or share personal information.",
+        cari: "Search phone number",
+        cariTelefon: "Phone number",
+        cariBtn: "Search",
+        tiadaCari: "No verified scam reports found for this number. This does not mean the number is safe.",
+        ringkasan: function (n) { return n + (n === 1 ? " verified scam report found" : " verified scam reports found"); },
+        semakan: function (n) { return n + (n === 1 ? " report is" : " reports are") + " under review. Be careful until verified."; },
+        badgeScam: "Verified scam",
+        caraTitle: "How it works",
+        langkah1: "Search",
+        langkah2: "Review",
+        langkah3: "Report",
+        ajakan: "Suspicious number? Help others by creating a report.",
+        butangLaporan: "Create new report",
+        disclaimer: "Reports are community-submitted and may not be independently verified. Always verify payment requests through official channels.",
+        tukar: "Bahasa Melayu"
+      }
+    };
+
+    // ===== WARNING ICON (used in results) =====
+    const IKON_AMARAN = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>';
+
+    let bahasa = "ms";
+    let senaraiTerakhir = null;
+    let pendingTerakhir = 0;
+
+    // ===== APPLY LANGUAGE =====
+    function applyLanguage() {
+      const t = teks[bahasa];
+      document.querySelectorAll("[data-key]").forEach(function (el) {
+        const nilai = t[el.dataset.key];
+        if (typeof nilai === "string") {
+          el.textContent = nilai;
+        }
+      });
+      document.documentElement.lang = bahasa;
+    }
+
+    function tukarBahasa() {
+      bahasa = bahasa === "ms" ? "en" : "ms";
+      applyLanguage();
+      if (senaraiTerakhir !== null) {
+        paparHasilCarian();
+      }
+    }
+
+    // ===== SHOW SEARCH RESULTS (warning + list) =====
+    function paparHasilCarian() {
+      const container = document.getElementById("hasil");
+      container.innerHTML = "";
+
+      if (pendingTerakhir > 0) {
+        const amaran = document.createElement("div");
+        amaran.className = "amaran-semakan";
+        amaran.innerHTML = IKON_AMARAN;
+        amaran.appendChild(document.createTextNode(teks[bahasa].semakan(pendingTerakhir)));
+        container.appendChild(amaran);
+      }
+
+      // Only show "no reports" when there are truly no reports at all
+      if (senaraiTerakhir.length === 0 && pendingTerakhir > 0) {
+        return;
+      }
+
+      renderReports(senaraiTerakhir, container, teks[bahasa].tiadaCari);
+    }
+
+    // ===== RENDER THE LIST OF REPORTS =====
+    function renderReports(list, container, emptyText) {
+      if (list.length === 0) {
+        const p = document.createElement("p");
+        p.className = "empty";
+        p.textContent = emptyText;
+        container.appendChild(p);
+        return;
+      }
+
+      const ringkasan = document.createElement("p");
+      ringkasan.className = "ringkasan";
+      ringkasan.textContent = teks[bahasa].ringkasan(list.length);
+      container.appendChild(ringkasan);
+
+      list.forEach(function (r) {
+        const box = document.createElement("div");
+        box.className = "report";
+
+        const title = document.createElement("span");
+        title.className = "report-title";
+        title.textContent = "#" + r.id + " " + r.scam_type;
+
+        const badge = document.createElement("span");
+        badge.className = "badge scam";
+        badge.innerHTML = IKON_AMARAN;
+        badge.appendChild(document.createTextNode(teks[bahasa].badgeScam));
+
+        const meta = document.createElement("div");
+        meta.className = "meta";
+        meta.textContent = r.phone + " · " + r.report_date;
+
+        const story = document.createElement("p");
+        story.textContent = r.story;
+
+        box.append(title, badge, meta, story);
+        container.appendChild(box);
+      });
+    }
+
+    // ===== SEARCH FUNCTION (calls the backend) =====
+    async function cariLaporan() {
+      const phone = document.getElementById("cari_phone").value;
+      const kod = encodeURIComponent(phone);
+
+      const [responseCari, responsePending] = await Promise.all([
+        fetch("/reports/search?phone=" + kod),
+        fetch("/reports/pending-count?phone=" + kod),
+      ]);
+
+      senaraiTerakhir = await responseCari.json();
+      const dataPending = await responsePending.json();
+      pendingTerakhir = dataPending.pending;
+
+      paparHasilCarian();
+    }
+
+    applyLanguage();
+  </script>
+</body>
+</html>

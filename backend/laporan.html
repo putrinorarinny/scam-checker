@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Buat laporan - Scam Checker</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>">
+  <style>
+    [hidden] { display: none !important; }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #EAF6F2;
+      color: #1e293b;
+      font-size: 18px;
+      margin: 0;
+      padding: 24px 16px;
+    }
+    .container { max-width: 680px; margin: 0 auto; }
+    .top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    h1 { margin: 0; font-size: 28px; color: #0f766e; }
+    h2 { margin: 0 0 14px; font-size: 22px; }
+    .kembali { color: #0f766e; font-size: 17px; text-decoration: none; }
+    .card {
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 22px 24px;
+      margin-bottom: 18px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    }
+    label { display: block; font-size: 17px; color: #334155; margin-bottom: 6px; }
+    input, select, textarea {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 12px 14px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      font-size: 18px;
+      margin-bottom: 16px;
+      font-family: inherit;
+      background: #ffffff;
+    }
+    button {
+      background: #0f766e;
+      color: #ffffff;
+      border: none;
+      padding: 12px 22px;
+      border-radius: 8px;
+      font-size: 18px;
+      cursor: pointer;
+    }
+    button:hover { opacity: 0.9; }
+    button.secondary { background: #475569; }
+    button.danger { background: #b91c1c; }
+    button.lang { background: #e2e8f0; color: #1e293b; font-size: 16px; }
+    .kod-box {
+      background: #ffffff;
+      border: 1px solid #99f6e4;
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-bottom: 12px;
+    }
+    .kod-besar { font-size: 30px; font-weight: 700; letter-spacing: 2px; color: #0f766e; margin-top: 4px; }
+    .row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .bantuan { font-size: 17px; margin: 16px 0 0; }
+    .nota { font-size: 15px; color: #64748b; margin: -10px 0 16px; line-height: 1.5; }
+    .nota-privasi {
+      font-size: 15px;
+      color: #92400e;
+      background: #fef3c7;
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin: -4px 0 16px;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- ===== HEADER: BACK LINK & LANGUAGE TOGGLE ===== -->
+    <div class="top">
+      <a class="kembali" href="/" data-key="kembali"></a>
+      <button class="lang" id="tukar" data-key="tukar" onclick="tukarBahasa()"></button>
+    </div>
+
+    <!-- ===== RESULT CARD (shown after submitting) ===== -->
+    <div class="card" id="kad_hasil" hidden>
+      <h2 data-key="hasilTitle"></h2>
+      <p data-key="simpanAmaran"></p>
+
+      <div class="kod-box">
+        <div data-key="idLaporan"></div>
+        <div class="kod-besar" id="papar_id"></div>
+      </div>
+
+      <div class="kod-box">
+        <div data-key="kodPadamLabel"></div>
+        <div class="kod-besar" id="papar_kod"></div>
+      </div>
+
+      <div class="row">
+        <button onclick="salinKod()" id="btn_salin" data-key="salin"></button>
+        <button class="secondary" onclick="muatTurunKod()" data-key="muatTurun"></button>
+        <button class="secondary" onclick="tutupHasil()" data-key="tutup"></button>
+      </div>
+    </div>
+
+    <!-- ===== CREATE REPORT FORM ===== -->
+    <div class="card">
+      <h2 data-key="buat"></h2>
+      <form id="borang">
+        <label data-key="telefon" for="phone"></label>
+        <input type="text" id="phone" required>
+        <p class="nota" data-key="telefonNota"></p>
+
+        <label data-key="jenis" for="scam_type"></label>
+        <select id="scam_type" required>
+          <option value="" disabled selected data-key="pilihJenis"></option>
+        </select>
+
+        <label data-key="cerita" for="story"></label>
+        <textarea id="story" rows="3" required></textarea>
+        <p class="nota-privasi" data-key="privasi"></p>
+
+        <label data-key="emailLabel" for="contact_email"></label>
+        <input type="email" id="contact_email" required>
+        <p class="nota" data-key="emailNota"></p>
+
+        <button type="submit" data-key="hantar"></button>
+      </form>
+    </div>
+
+    <!-- ===== DELETE MY REPORT ===== -->
+    <div class="card">
+      <h2 data-key="tindakan"></h2>
+      <label data-key="idLaporan" for="report_id"></label>
+      <input type="number" id="report_id">
+      <label data-key="kodPadamLabel" for="kod_padam"></label>
+      <input type="text" id="kod_padam">
+      <button class="danger" onclick="deleteReport()" data-key="padam"></button>
+      <p class="bantuan">
+        <span data-key="hilang"></span>
+        <strong id="kontak_admin_bawah"></strong>
+      </p>
+    </div>
+  </div>
+
+  <script>
+    // ===== ADMIN CONTACT & SCAM TYPE LIST =====
+    // CHANGE this to the real admin number or email
+    const KONTAK_ADMIN = "scamchecker.bootcamp@gmail.com";
+
+    // The stored value is always Malay (ms). The label shown follows the language (en / ms).
+    const JENIS = [
+      { ms: "Penipuan penghantaran parcel", en: "Parcel delivery scam" },
+      { ms: "Penipuan saman trafik", en: "Traffic fine scam" },
+      { ms: "Penipuan penyamaran pegawai bank", en: "Bank officer impersonation scam" },
+      { ms: "Penipuan pelaburan", en: "Investment scam" },
+      { ms: "Penipuan kerja", en: "Job scam" },
+      { ms: "Penipuan sewaan rumah", en: "Rental scam" },
+      { ms: "Lain-lain", en: "Others" }
+    ];
+
+    // ===== BILINGUAL TEXT (Malay / English) =====
+    const teks = {
+      ms: {
+        tajuk: "Buat laporan",
+        kembali: "← Kembali ke laman utama",
+        buat: "Buat laporan baharu",
+        telefon: "Nombor telefon scammer",
+        telefonNota: "Masukkan nombor yang menghubungi atau menipu anda, bukan nombor anda sendiri.",
+        jenis: "Jenis penipuan",
+        pilihJenis: "-- Pilih jenis penipuan --",
+        cerita: "Butiran kejadian",
+        privasi: "Jangan masukkan OTP, kata laluan atau nombor kad bank dalam laporan ini.",
+        emailLabel: "E-mel",
+        emailNota: "Wajib diisi. E-mel hanya digunakan oleh pentadbir untuk mengesahkan pemilik laporan. E-mel tidak dipaparkan kepada orang ramai.",
+        hantar: "Hantar laporan",
+        hasilTitle: "Laporan berjaya dihantar",
+        simpanAmaran: "Simpan ID dan kod pemadaman ini. Anda perlukan kedua-duanya untuk padam laporan ini.",
+        idLaporan: "ID laporan",
+        kodPadamLabel: "Kod pemadaman",
+        salin: "Salin",
+        disalin: "Telah disalin!",
+        muatTurun: "Muat turun",
+        tutup: "Tutup",
+        hilang: "Lupa kod? Hubungi pentadbir di:",
+        tindakan: "Padam laporan saya",
+        padam: "Padam laporan saya",
+        berjayaPadam: "Laporan telah dipadam!",
+        tidakJumpa: "Laporan tidak dijumpai, atau kod pemadaman salah.",
+        sahkanPadam: "Anda pasti mahu padam laporan ini?",
+        tukar: "English"
+      },
+      en: {
+        tajuk: "Create report",
+        kembali: "← Back to homepage",
+        buat: "Create new report",
+        telefon: "Scammer's phone number",
+        telefonNota: "Enter the number that contacted or scammed you, not your own number.",
+        jenis: "Scam type",
+        pilihJenis: "-- Select scam type --",
+        cerita: "Incident details",
+        privasi: "Do not include OTPs, passwords, or bank card numbers in this report.",
+        emailLabel: "Email",
+        emailNota: "Required. Email is only used by an administrator to verify the report owner. It is never shown publicly.",
+        hantar: "Submit report",
+        hasilTitle: "Your report has been submitted!",
+        simpanAmaran: "Save this ID and delete code. You need both to delete this report.",
+        idLaporan: "Report ID",
+        kodPadamLabel: "Delete code",
+        salin: "Copy",
+        disalin: "Copied!",
+        muatTurun: "Download",
+        tutup: "Close",
+        hilang: "Forgot your code? Contact admin at:",
+        tindakan: "Delete my report",
+        padam: "Delete my report",
+        berjayaPadam: "Report deleted!",
+        tidakJumpa: "Report not found, or wrong delete code.",
+        sahkanPadam: "Are you sure you want to delete this report?",
+        tukar: "Bahasa Melayu"
+      }
+    };
+
+    let bahasa = "ms";
+    let hasilTerakhir = null;
+
+    // ===== FILL THE SCAM TYPE DROPDOWN =====
+    function isiJenis() {
+      const select = document.getElementById("scam_type");
+      const pilihan = select.value;
+
+      // Remove all options except the placeholder (the first one)
+      while (select.options.length > 1) {
+        select.remove(1);
+      }
+
+      JENIS.forEach(function (j) {
+        const opt = document.createElement("option");
+        opt.value = j.ms;
+        opt.textContent = j[bahasa];
+        select.appendChild(opt);
+      });
+
+      select.value = pilihan;
+    }
+
+    // ===== APPLY LANGUAGE =====
+    function applyLanguage() {
+      const t = teks[bahasa];
+      document.querySelectorAll("[data-key]").forEach(function (el) {
+        const nilai = t[el.dataset.key];
+        if (typeof nilai === "string") {
+          el.textContent = nilai;
+        }
+      });
+      document.getElementById("kontak_admin_bawah").textContent = KONTAK_ADMIN;
+      document.documentElement.lang = bahasa;
+      isiJenis();
+    }
+
+    function tukarBahasa() {
+      bahasa = bahasa === "ms" ? "en" : "ms";
+      applyLanguage();
+    }
+
+    // ===== SHOW THE RESULT (ID + delete code) =====
+    function papar(hasil) {
+      hasilTerakhir = hasil;
+      document.getElementById("papar_id").textContent = hasil.id;
+      document.getElementById("papar_kod").textContent = hasil.kod_padam;
+      document.getElementById("kad_hasil").hidden = false;
+      document.getElementById("kad_hasil").scrollIntoView({ behavior: "smooth" });
+    }
+
+    function tutupHasil() {
+      document.getElementById("kad_hasil").hidden = true;
+    }
+
+    // ===== COPY / DOWNLOAD THE CODE =====
+    async function salinKod() {
+      const teksSalin = "ID: " + hasilTerakhir.id + "\nKod pemadaman: " + hasilTerakhir.kod_padam;
+      await navigator.clipboard.writeText(teksSalin);
+
+      const btn = document.getElementById("btn_salin");
+      btn.textContent = teks[bahasa].disalin;
+      setTimeout(function () {
+        btn.textContent = teks[bahasa].salin;
+      }, 2000);
+    }
+
+    function muatTurunKod() {
+      const kandungan =
+        "Scam Checker\n" +
+        "ID laporan: " + hasilTerakhir.id + "\n" +
+        "Kod pemadaman: " + hasilTerakhir.kod_padam + "\n\n" +
+        "Simpan fail ini. Anda perlukan ID dan kod pemadaman untuk padam laporan.\n";
+
+      const blob = new Blob([kandungan], { type: "text/plain" });
+      const pautan = document.createElement("a");
+      pautan.href = URL.createObjectURL(blob);
+      pautan.download = "laporan-" + hasilTerakhir.id + ".txt";
+      pautan.click();
+      URL.revokeObjectURL(pautan.href);
+    }
+
+    // ===== SUBMIT REPORT (calls the backend) =====
+    document.getElementById("borang").addEventListener("submit", async function (event) {
+      event.preventDefault();
+
+      const laporan = {
+        phone: document.getElementById("phone").value,
+        scam_type: document.getElementById("scam_type").value,
+        story: document.getElementById("story").value,
+        contact_email: document.getElementById("contact_email").value,
+      };
+
+      const response = await fetch("/reports", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(laporan),
+      });
+      const hasil = await response.json();
+
+      papar(hasil);
+      this.reset();
+      isiJenis();
+    });
+
+    // ===== DELETE REPORT (calls the backend) =====
+    async function deleteReport() {
+      const id = document.getElementById("report_id").value;
+      const kod = document.getElementById("kod_padam").value;
+      if (!id || !kod) return;
+      if (!confirm(teks[bahasa].sahkanPadam)) return;
+
+      const response = await fetch("/reports/" + id + "?kod_padam=" + encodeURIComponent(kod), {
+        method: "DELETE",
+      });
+      const data = await response.json();
+
+      alert(data.length ? teks[bahasa].berjayaPadam : teks[bahasa].tidakJumpa);
+    }
+
+    applyLanguage();
+  </script>
+</body>
+</html>

@@ -1,0 +1,379 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Admin - Scam Checker</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>">
+  <style>
+    [hidden] { display: none !important; }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #EAF6F2;
+      color: #1e293b;
+      font-size: 18px;
+      margin: 0;
+      padding: 24px 16px;
+    }
+    .container { max-width: 900px; margin: 0 auto; }
+    .top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    h1 { margin: 0; font-size: 28px; color: #0f766e; }
+    h2 { margin: 0 0 14px; font-size: 22px; }
+    .card {
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 22px 24px;
+      margin-bottom: 18px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    }
+    label { display: block; font-size: 17px; color: #334155; margin-bottom: 6px; }
+    input {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 12px 14px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      font-size: 18px;
+      margin-bottom: 16px;
+    }
+    button {
+      background: #0f766e;
+      color: #ffffff;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-size: 17px;
+      cursor: pointer;
+    }
+    button:hover { opacity: 0.9; }
+    button.secondary { background: #475569; }
+    button.danger { background: #b91c1c; }
+    .row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .error { color: #b91c1c; font-size: 17px; margin: 4px 0 0; }
+    .msg { font-size: 17px; margin: 14px 0 0; color: #334155; min-height: 1em; }
+
+    .ringkasan-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+    .statistik {
+      border-radius: 12px;
+      padding: 14px 16px;
+      background: #ffffff;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    }
+    .statistik .label { font-size: 15px; color: #475569; margin: 0; }
+    .statistik .nombor { font-size: 30px; font-weight: 700; margin-top: 4px; color: #1e293b; }
+    .statistik.total { background: #ccfbf1; }
+    .statistik.new { background: #fef3c7; }
+    .statistik.verified { background: #d1fae5; }
+
+    .penapis { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+    .tapis { background: #e2e8f0; color: #1e293b; font-size: 15px; padding: 8px 14px; }
+    .tapis.aktif { background: #0f766e; color: #ffffff; }
+
+    .report {
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 16px 18px;
+      margin-top: 12px;
+    }
+    .report-title { font-weight: 600; font-size: 19px; }
+    .meta { color: #64748b; font-size: 16px; margin: 4px 0 8px; }
+    .report p { margin: 0 0 12px; font-size: 18px; line-height: 1.5; }
+    .badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: 600;
+      margin-left: 8px;
+    }
+    .badge.verified { background: #d1fae5; color: #065f46; }
+    .badge.new { background: #fef3c7; color: #92400e; }
+    .empty { color: #64748b; font-size: 18px; margin-top: 12px; }
+    .aksi { display: flex; gap: 8px; flex-wrap: wrap; }
+    .aksi button { padding: 8px 14px; font-size: 16px; }
+    @media (max-width: 480px) {
+      .ringkasan-grid { grid-template-columns: 1fr; }
+    }
+        .kanan { display: flex; gap: 8px; align-items: center; }
+    .pautan-home {
+      color: #475569;
+      font-size: 16px;
+      text-decoration: none;
+      padding: 8px 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      background: #ffffff;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="top">
+      <h1>Admin</h1>
+      <div class="kanan">
+        <a class="pautan-home" href="/">← Homepage</a>
+        <button class="secondary" id="btn_keluar" hidden onclick="logKeluar()">Log out</button>
+      </div>
+    </div>
+
+    <!-- Skrin log masuk -->
+    <div class="card" id="skrin_login">
+      <h2>Admin log in</h2>
+      <form id="borang_login">
+        <label for="login_password">Admin password</label>
+        <input type="password" id="login_password" required>
+        <button type="submit">Log in</button>
+        <p class="error" id="login_error" hidden>Wrong password.</p>
+      </form>
+    </div>
+
+    <!-- Skrin admin (hanya nampak lepas log masuk) -->
+    <div id="skrin_admin" hidden>
+      <div class="ringkasan-grid">
+        <div class="statistik total">
+          <div class="label">Total reports</div>
+          <div class="nombor" id="stat_total">0</div>
+        </div>
+        <div class="statistik new">
+          <div class="label">New</div>
+          <div class="nombor" id="stat_new">0</div>
+        </div>
+        <div class="statistik verified">
+          <div class="label">Verified</div>
+          <div class="nombor" id="stat_verified">0</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>All reports</h2>
+        <div class="penapis">
+          <button class="tapis aktif" data-tapis="All">All</button>
+          <button class="tapis" data-tapis="New">New</button>
+          <button class="tapis" data-tapis="Verified">Verified</button>
+        </div>
+        <div id="senarai"></div>
+        <p class="msg" id="mesej"></p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const KUNCI = "admin_pw";
+    let senaraiPenuh = [];
+    let penapis = "All";
+
+    function getPassword() {
+      try {
+        return sessionStorage.getItem(KUNCI) || "";
+      } catch (e) {
+        return "";
+      }
+    }
+
+    function savePassword(pw) {
+      try {
+        sessionStorage.setItem(KUNCI, pw);
+      } catch (e) {}
+    }
+
+    function clearPassword() {
+      try {
+        sessionStorage.removeItem(KUNCI);
+      } catch (e) {}
+    }
+
+    function apiAdmin(path, options) {
+      const opts = options || {};
+      return fetch(path, {
+        method: opts.method || "GET",
+        headers: { "x-admin-password": getPassword() },
+      });
+    }
+
+    function showLogin() {
+      document.getElementById("skrin_login").hidden = false;
+      document.getElementById("skrin_admin").hidden = true;
+      document.getElementById("btn_keluar").hidden = true;
+    }
+
+    function showAdmin() {
+      document.getElementById("skrin_login").hidden = true;
+      document.getElementById("skrin_admin").hidden = false;
+      document.getElementById("btn_keluar").hidden = false;
+    }
+
+    function setMesej(teks) {
+      document.getElementById("mesej").textContent = teks;
+    }
+
+    function kemaskiniStatistik(list) {
+      const total = list.length;
+      const baru = list.filter(function (r) { return r.status !== "Verified"; }).length;
+      const sah = list.filter(function (r) { return r.status === "Verified"; }).length;
+      document.getElementById("stat_total").textContent = total;
+      document.getElementById("stat_new").textContent = baru;
+      document.getElementById("stat_verified").textContent = sah;
+    }
+
+    function ikutPenapis(list) {
+      if (penapis === "New") {
+        return list.filter(function (r) { return r.status !== "Verified"; });
+      }
+      if (penapis === "Verified") {
+        return list.filter(function (r) { return r.status === "Verified"; });
+      }
+      return list;
+    }
+
+    function tukarPenapis(nama) {
+      penapis = nama;
+      document.querySelectorAll(".tapis").forEach(function (btn) {
+        btn.classList.toggle("aktif", btn.dataset.tapis === nama);
+      });
+      paparSenarai();
+    }
+
+    function paparSenarai() {
+      const container = document.getElementById("senarai");
+      container.innerHTML = "";
+      const senarai = ikutPenapis(senaraiPenuh);
+
+      if (senarai.length === 0) {
+        const p = document.createElement("p");
+        p.className = "empty";
+        p.textContent = senaraiPenuh.length === 0 ? "No reports yet." : "No reports in this filter.";
+        container.appendChild(p);
+        return;
+      }
+
+      senarai.forEach(function (r) {
+        const box = document.createElement("div");
+        box.className = "report";
+
+        const title = document.createElement("span");
+        title.className = "report-title";
+        title.textContent = "#" + r.id + " " + r.scam_type;
+
+        const badge = document.createElement("span");
+        badge.className = "badge " + (r.status === "Verified" ? "verified" : "new");
+        badge.textContent = r.status;
+
+        const meta = document.createElement("div");
+        meta.className = "meta";
+        meta.textContent = r.phone + " · " + r.report_date;
+
+        const email = document.createElement("div");
+        email.className = "meta";
+        email.textContent = "Email: " + (r.contact_email || "-");
+
+        const story = document.createElement("p");
+        story.textContent = r.story;
+
+        const aksi = document.createElement("div");
+        aksi.className = "aksi";
+
+        if (r.status !== "Verified") {
+          const btnVerify = document.createElement("button");
+          btnVerify.textContent = "Verify";
+          btnVerify.addEventListener("click", function () { sahkanLaporan(r.id); });
+          aksi.appendChild(btnVerify);
+        }
+
+        const btnPadam = document.createElement("button");
+        btnPadam.className = "danger";
+        btnPadam.textContent = "Delete";
+        btnPadam.addEventListener("click", function () { padamLaporan(r.id); });
+        aksi.appendChild(btnPadam);
+
+        box.append(title, badge, meta, email, story, aksi);
+        container.appendChild(box);
+      });
+    }
+
+    function renderReports(list) {
+      senaraiPenuh = list;
+      kemaskiniStatistik(list);
+      paparSenarai();
+    }
+
+    // Ambil senarai dengan kata laluan semasa. Pulang true kalau berjaya.
+    async function muatSenarai() {
+      try {
+        const response = await apiAdmin("/admin/reports");
+        if (!response.ok) return false;
+        const rows = await response.json();
+        renderReports(rows);
+        return true;
+      } catch (e) {
+        return false;
+      }
+    }
+
+    document.querySelectorAll(".tapis").forEach(function (btn) {
+      btn.addEventListener("click", function () { tukarPenapis(btn.dataset.tapis); });
+    });
+
+    document.getElementById("borang_login").addEventListener("submit", async function (event) {
+      event.preventDefault();
+      const pw = document.getElementById("login_password").value;
+      const ralat = document.getElementById("login_error");
+
+      savePassword(pw);
+      const ok = await muatSenarai();
+
+      if (ok) {
+        ralat.hidden = true;
+        document.getElementById("login_password").value = "";
+        showAdmin();
+      } else {
+        clearPassword();
+        ralat.hidden = false;
+      }
+    });
+
+    function logKeluar() {
+      clearPassword();
+      senaraiPenuh = [];
+      document.getElementById("senarai").innerHTML = "";
+      setMesej("");
+      showLogin();
+    }
+
+    async function sahkanLaporan(id) {
+      const response = await apiAdmin("/reports/" + id + "/verify", { method: "PATCH" });
+      if (response.status === 401) {
+        logKeluar();
+        return;
+      }
+      setMesej("Report " + id + " verified.");
+      await muatSenarai();
+    }
+
+    async function padamLaporan(id) {
+      if (!confirm("Delete report " + id + "?")) return;
+      const response = await apiAdmin("/admin/reports/" + id, { method: "DELETE" });
+      if (response.status === 401) {
+        logKeluar();
+        return;
+      }
+      setMesej("Report " + id + " deleted.");
+      await muatSenarai();
+    }
+
+    // Bila halaman dibuka: kalau kata laluan dalam tab ni masih sah, terus masuk
+    (async function () {
+      if (getPassword() && (await muatSenarai())) {
+        showAdmin();
+      } else {
+        clearPassword();
+        showLogin();
+      }
+    })();
+  </script>
+</body>
+</html>
